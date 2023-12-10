@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat поставщика</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <style type="text/css">
+
+        body {
+            font-family: "Lato", sans-serif;
+        }
+
+        /* Фиксированный sidenav, полной высоты */
+        .sidenav {
+            height:835px;
+            width: 800px;
+            position: fixed;
+            z-index: 1;
+            top: 93px;
+            left: 0;
+            background-color: black;
+            overflow-x: hidden;
+            padding-top: 20px;
+        }
+
+        /* Стиль ссылки sidenav и кнопка выпадающего списка */
+        .sidenav a, .dropdown-btn {
+            padding: 6px 8px 6px 16px;
+            text-decoration: none;
+            font-size: 20px;
+            color: #818181;
+            display: block;
+            border: none;
+            background: none;
+            width: 100%;
+            text-align: left;
+            cursor: pointer;
+            outline: none;
+        }
+
+        /* При наведении курсора мыши */
+        .sidenav a:hover, .dropdown-btn:hover {
+            color: #f1f1f1;
+        }
+
+        /* Основное содержание */
+        .main {
+            margin-left: 800px; /* То же, что и ширина sidenav */
+            font-size: 20px; /* Увеличенный текст для включения прокрутки */
+            width: 100%;
+            min-height: 680px;
+            max-height: 680px;
+            overflow-x: hidden;
+            padding-top: 100px;
+            background-color: white;
+        }
+
+        /* Добавьте активный класс в раскрывающийся список active */
+        .active {
+            background-color: gray;
+            color: white;
+        }
+
+        /* Выпадающий контейнер (по умолчанию скрыт). Необязательно: добавьте более светлый цвет фона и некоторые левые отступы, чтобы изменить дизайн выпадающего содержимого */
+        .dropdown-container {
+            display: none;
+            background-color: #262626;
+            padding-left: 8px;
+        }
+
+        /* Необязательно: стиль курсора вниз значок */
+        .fa-caret-down {
+            float: right;
+            padding-right: 8px;
+        }
+
+        /* Некоторые медиа-запросы для быстрого реагирования */
+        @media screen and (max-height: 450px) {
+            .sidenav {
+                padding-top: 15px;
+            }
+
+            .sidenav a, .dropdown-btn {
+                font-size: 18px;
+            }
+        }
+
+        @media screen and (max-width: 450px) {
+            .sidenav {
+                width: 150px;
+            }
+
+            .main {
+                margin-left: 150px;
+            }
+
+            .fa-caret-down {
+                display: none;
+            }
+        }
+
+        @media screen and (max-width: 300px) {
+            .sidenav {
+                width: 120px;
+            }
+
+            .main {
+                margin-left: 120px;
+            }
+        }
+
+        .chat {
+            width: 100%;
+
+            height: 100%
+        }
+
+    </style>
+</head>
+
+<body style="background-color: white;">
+<header style="padding-bottom: 0px; min-height:100px; position: fixed; width: 100% ">
+    <div class="d-flex flex-column flex-md-row align-items-center  border-bottom" style="background-color: #111">
+        <a class="d-flex align-items-center text-dark text-decoration-none">
+            <h1  onclick="to_chat(1)"; style="color: white; font-size: 30px; min-height: 100px; padding: 20px">{{doc.name}}</h1>
+        </a>
+        <nav class="d-inline-flex mt-2 mt-md-0 ms-md-auto">
+            <label style="font-size: 30px;  padding-top: 15px"  class="me-3 py-2 text-white text-decoration-none"
+                   value="Статус контракта">{{status}}</label>
+            <label style="font-size: 30px; padding-top: 15px " onclick="download()" class="me-3 py-2 text-white text-decoration-none"
+                   value="Статус контракта">Выгрузить</label>
+            <a style="font-size: 30px;  padding-top: 15px; margin-right: 50px" href="/" class="me-3 py-2 text-white text-decoration-none">Выйти</a>
+        </nav>
+    </div>
+</header>
+<div class="page" style="display: flex; ">
+
+    <div class="sidenav">
+        <button class="dropdown-btn">Основная информация
+            <i class="fa fa-caret-down"></i>
+        </button>
+      <div class="dropdown-container">
+
+            {% for c in common %}
+            <div id="{{c.id}}" class="{{c.name}}" onclick="to_chat(this.id)" style="display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label>
+                <label id="{{c.id}}v" style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <button type="button" class="btn btn"
+                    style="margin-right: 10px; margin-bottom: 10px;background-color: #ccccff">Принять блок
+            </button>
+        </div>
+
+        <button class="dropdown-btn">Сведения о заказчике
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+
+            <label style="font-size: 25px; color:white ">Общие сведения</label>
+
+            {% for c in c_common %}
+            <div id="{{c.id}}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px;">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label>
+                <label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <label style="font-size: 25px; color:white ">Банковские реквизиты</label>
+
+            {% for c in c_bank %}
+            <div id="{{ c.id }}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label>
+                <label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <label style="font-size: 25px; color:white ">Контактные данные</label>
+
+            {% for c in c_contact %}
+            <div id="{{ c.id }}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label>
+                <label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+
+            <button type="button" class="btn btn"
+                    style="margin-right: 10px; margin-bottom: 10px;background-color: #ccccff">Принять блок
+            </button>
+        </div>
+
+
+        <button class="dropdown-btn">Сведения о поставщике
+            <i class="fa fa-caret-down"></i>
+        </button>
+
+        <div class="dropdown-container">
+
+            <label style="font-size: 25px; color:white ">Общие сведения</label>
+
+            {% for c in s_common %}
+            <div id="{{ c.id }}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label><label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <label style="font-size: 25px; color:white ">Банковские реквизиты</label>
+
+            {% for c in s_bank %}
+            <div id="{{ c.id }}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label><label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <label style="font-size: 25px; color:white ">Контактные данные</label>
+
+            {% for c in s_contact %}
+            <div id="{{ c.id }}" onclick="to_chat(this.id)" style=" display: flex;  margin-top: 5px">
+                <label id="{{c.id}}h" style="color: #818181; font-size: 20px; margin: 10px">{{c.name}}</label><label id="{{c.id}}v"
+                    style="color: white; font-size: 20px; margin: 10px">{{c.value}}</label>
+
+            </div>
+            {% endfor %}
+            <button type="button" class="btn btn"
+                    style="margin-right: 10px; margin-bottom: 10px;background-color: #ccccff">Принять блок
+            </button>
+        </div>
+
+        <button class="dropdown-btn">Спецификация
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div class="dropdown-container">
+            <div style="margin-top: 5px">
+                <table class="table" style="color: white; text-align: center">
+                    <thead>
+                    <tr>
+                        <th scope="col">Наименование</th>
+                <th scope="col">Единицы измерения</th>
+                        <th scope="col">Цена</th>
+                <th scope="col">Количество</th>
+                        <th scope="col">Сумма</th>
+                    </tr>
+                    </thead>
+                    <tbody >
+                    {% for w in ware %}
+                    <tr>
+                        <td>{{w.name}}
+                        </td>
+                        <td>{{w.units}}
+                        </td>
+                        <td>{{w.price_nds}}
+                        </td>
+                        <td>{{w.quantity}}
+                        </td>
+                        <td>{{w.sum_nds}}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+                    </tbody>
+                </table>
+                <button type="button" class="btn btn"
+                        style="margin-right: 10px; margin-bottom: 10px;background-color: #ccccff">Принять блок
+                </button>
+            </div>
+        </div>
+        <button class="dropdown-btn">Сведения о поставке
+            <i class="fa fa-caret-down"></i>
+        </button>
+        <div  class="dropdown-container">
+
+            <div style="margin-top: 5px">
+        <table class="table" style="color: white; text-align: center">v
+            <thead>
+            <tr>
+                <th scope="col">Адрес, включая город</th>
+                <th scope="col">Срок поставки</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for w in ware %}
+                    <tr>
+                        <td>{{w.adress}}
+                        </td>
+                        <td>{{w.time}}
+                        </td>
+                    </tr>
+
+                    {% endfor %}
+            </tbody>
+
+        </table>
+        <button type="button" class="btn btn"
+                style="margin-right: 10px; margin-bottom: 10px; background-color: #ccccff ">Принять весь документ
+        </button>
+    </div>
+        </div>
+
+        <script>
+
+            var chat_id = 1;
+            window.addEventListener('load', () => {
+                to_chat(1);});
+            /* Цикл через все кнопки выпадающего списка для переключения между скрытием и отображением его выпадающего содержимого - это позволяет пользователю иметь несколько выпадающих списков без каких-либо конфликтов */
+            var dropdown = document.getElementsByClassName("dropdown-btn");
+            var i;
+
+            for (i = 0; i < dropdown.length; i++) {
+                dropdown[i].addEventListener("click", function () {
+                    this.classList.toggle("active");
+                    var dropdownContent = this.nextElementSibling;
+                    if (dropdownContent.style.display === "block") {
+                        dropdownContent.style.display = "none";
+                    } else {
+                        dropdownContent.style.display = "block";
+                    }
+                });
+            }
+
+
+
+
+            async function to_chat(id) {
+                chat_id=id;
+                label = document.getElementById(id+'h')
+                if (label) {chat_h1.innerText = 'Чат по блоку: '+ label.innerText;}
+                else
+                {chat_h1.innerText='Общий чат'}
+                const mess_box = document.getElementById('message_box');
+                const response = await fetch('/messages/' + id, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+                mess_box.innerHTML = '';
+                const jsonRes = await response.json();
+                jsonRes.forEach(item => {
+                    mess_box.innerHTML += get_sms(item);
+                });
+            }
+
+            async function to_chat_new(id) {
+                chat_id=id;
+                label = document.getElementById(id+'h')
+                if (label) {chat_h1.innerText = 'Чат по блоку: '+ label.innerText;}
+                else
+                {chat_h1.innerText='Общий чат'}
+                const mess_box = document.getElementById('message_box');
+                const response = await fetch('/messages/' + id, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                });
+                const jsonRes = await response.json();
+                if (jsonRes.length==mess_box.getElementsByClassName("smska").length)
+                    return 0
+                else
+                {mess_box.innerHTML = '';
+
+                jsonRes.forEach(item => {
+                    mess_box.innerHTML += get_sms(item);
+                });}
+            }
+
+
+            function chat_update()
+            {
+                to_chat_new(chat_id)
+            }
+
+            let timerId = setInterval(chat_update, 100);
+
+            function get_sms(item) {
+                if (item.sender_id==1)
+                sender = 'Заказчик'
+                else
+                sender = 'Поставщик'
+                value = document.getElementById("sms").value
+                chat_h1 = document.getElementById("chat_h1")
+                field = chat_h1.innerText.slice(14)
+                if(item.type_id==1)
+                { return `
+            <div class="smska" style="margin-left: 20px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+            <p><b>${sender}</b></p>
+                <p>${item.content}
+                </p>
+            </div>
+        `}
+              if (item.type_id==2)
+                {
+
+                    if (item.sender_id==2)
+                    {
+                         if (item.status==null)
+                        {return `
+            <div  class="smska" style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Вы предложили значение полю: ${field}
+                </p><br>
+                <p>${item.content}</p>
+
+            </div>`}
+                     if (item.status==true)
+                        {return `
+            <div  class="smska" style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Вы предложили значение полю: ${field} <p>
+                    Собеседник принял предложение
+                </p>
+                </p><br>
+                <p>${item.content}</p>
+
+            </div>`}
+                        if (item.status==false)
+                            {return `
+            <div  class="smska" style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Вы предложили значение полю: ${field} <p>
+                    Собеседник отклонил предложение
+                </p>
+                </p><br>
+                <p>${item.content}</p>
+
+            </div>`}
+                    }
+                    else
+                    {
+                        if (item.status==null)
+                        { return    `
+            <div  class="smska"  style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Собеседник предложил значение полю: ${field}
+                </p><br>
+                <p>${item.content}</p>
+            <button id="${item.id} yes" name="${item.content}" onclick="update_status(true, this.id, this.name)">Принять</button> <button id="${item.id}no"  name="${item.content}"  onclick="update_status(false, this.id, this.name)">Отклонить</button>
+            </div>`}
+                        if (item.status==true)
+                            { return    `
+            <div  class="smska" style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Собеседник предложил значение полю: ${field}
+                </p><br>
+                <p>Вы приняли</p><br>
+                <p>${item.content}</p>
+
+                </div>`}
+                        else
+                        {
+                            return    `
+            <div  class="smska" style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Собеседник предложил значение полю: ${field}
+                </p><br>
+                <p>Вы отклонили</p><br>
+                <p>${item.content}</p>
+
+                </div>`
+                        }
+                    }
+                }
+            }
+
+            async function update_status(status, id, name)
+            {
+             if(status)
+             {
+                 const response = await fetch('/update/mes/' + id.replace('yes',''), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(
+                        {
+                            value: name,
+                            status: status,
+                        })
+                });
+            const jsonRes = await response.json();
+                document.getElementById(jsonRes+'v').innerText = name
+             }
+
+             else
+                {
+                    fetch('/update/mes/' + id.replace('no',''), {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(
+                        {
+                            status: status,
+                        })
+                });
+                }
+
+            await to_chat(chat_id);
+            }
+
+
+
+            function add_sms(sender,type, status) {
+                var mb = document.getElementById("message_box")
+
+                document.getElementById("message_box").innerHTML += sms()
+                fetch('/send/' + chat_id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(
+                        {
+                            value: document.getElementById("sms").value,
+                            sender_id: sender,
+                            type: type,
+                            status: status,
+                        })
+                });
+                // window.scrollTo(0,document.body.scrollHeight);
+                scrollToBottom("message_box");
+            }
+
+            function scrollToBottom(elementId) {
+                var div = document.getElementById(elementId);
+                div.scrollTop = div.scrollHeight;
+            }
+
+            function sms() {
+                var sms = document.getElementById("sms")
+                return `
+            <div style="margin-left: 20px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+            <p><b>Поставщик:</b></p>
+                <p>${sms.value}
+                </p>
+            </div>
+        `
+            }
+
+            function add_file() {
+                var mb = document.getElementById("message_box")
+                document.getElementById("message_box").innerHTML += file_changed()
+                scrollToBottom("message_box");
+            }
+
+            function file_changed() {
+                var input = document.getElementById("file_input")
+                var files = input.files;
+                var file = files[0];
+                var info = ' <div style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">' +
+                    '<p><b>Поставщик: \n</b></p>' + '<p>File name: <strong>' + file.name + '</strong></p>';
+                info += '<p>File size: <strong>' + file.size + ' bytes</strong></p>';
+                info += '<p>File type: <strong>' + file.type + '</strong></p></div>';
+                return info;
+            }
+
+            function add_value(sender,type, status) {
+                var mb = document.getElementById("message_box")
+                document.getElementById("message_box").innerHTML += new_value()
+                scrollToBottom("message_box");
+
+                fetch('/send/' + chat_id, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(
+                        {
+                            value: document.getElementById("sms").value,
+                            sender_id: sender,
+                            type: type,
+                            status: status,
+                        })
+                });
+
+            }
+
+            function new_value() {
+                var sms = document.getElementById("sms")
+
+                if (chat_h1.innerText == "Общий чат") {document.getElementById('suggest').enabled = false}
+                else {tmp = chat_h1.innerText.slice(14)}
+
+                return `
+            <div  style="margin-left: 20px; margin-bottom: 2px; margin-bottom: 3px; padding-left: 10px; padding-right: 10px; background-color: #ccccff; border-radius: 10px; width: fit-content;">
+                <p>
+                    Вы предложили значение полю: ${tmp}
+                </p><br>
+                <p>${sms.value}</p>
+
+            </div>`
+            }
+
+            function download() {
+                fetch('/download', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: {
+
+                    }
+                });
+
+            }
+
+        </script>
+</div>
+<main class="main">
+    <div style="margin-top: -8px; width: 100%; position: fixed">
+        <h1 id="chat_h1" style="background-color: white; padding: 10px" id="content">Чат по блоку: </h1>
+    </div>
+
+    <div class="chat" style="max-height: 600px;">
+        <div style="margin-top: 50px; min-height: 900px; margin-bottom: 5px; padding-top: 50px">
+            <div class="" id='message_box' style=" height: 100%; top: 150px">
+            </div>
+        </div>
+        <div style='background-color: #ccccff; bottom: 0px; position: fixed; width: 100%; min-height: 250px'>
+            <textarea id="sms" type="text" placeholder="SMS"
+                      style="margin-top: 10px; max-height: 170px; min-height: 160px; width: 1000px; margin-bottom: 10px; margin-left: 10px"> </textarea><br>
+
+            <button class="btn btn-light" onclick="add_sms(2,1,  null)"
+                    style="margin-bottom: 10px; height: 40px; margin-left: 15px">Отправить
+            </button>
+            <button class="btn btn-light" id='suggest' onclick="add_value(2, 2, null)" style="margin-bottom: 10px; height: 40px">Предложить
+                значение полю
+            </button>
+            <input id="file_input" type="file" onchange="add_file()" class="btn btn-light"
+                   style="margin-bottom: 13px; height: 40px">
+        </div>
+    </div>
+</main>
+</div>
+</body>
+</html>>
