@@ -29,7 +29,7 @@ def customer(id):
         #     content=content_value
         # )
         pass
-    doc = Document.query.get(id)
+    doc = Document.query.get(3)
     stat = StatusDocument.query.get(doc.status_id)
     fields = Field.query.filter_by(document_id=id).all()
     fields = Field.query.order_by(Field.id)
