@@ -34,7 +34,6 @@ def customer(id):
     fields = Field.query.filter_by(document_id=id).all()
     fields = Field.query.order_by(Field.id)
     fields=fields[1:]
-    common=fields[:8]
     customer=fields[8:22]
     c_common=customer[:5]
     c_bank=customer[5:12]
